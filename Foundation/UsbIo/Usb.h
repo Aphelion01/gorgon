@@ -24,14 +24,11 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _CORE_H_
-#define _CORE_H_
+#ifndef _USB_H_
+#define _USB_H_
 
 #include <Core.h>
-
-#ifdef __linux__
 #include <libusb-1.0/libusb.h>
-#endif
 
 #define SERIAL_SIZE     256
 
@@ -40,11 +37,7 @@
  */
 
 typedef struct __usb_device_context {
-#ifdef __linux__
-    libusb_device_handle device_handle;
-#else
-    void* device_handle;
-#endif
+    libusb_device_handle *device_handle;
     uint32_t device_interface;
     uint32_t device_alternate_interface;
     uint32_t device_pid;
@@ -54,6 +47,32 @@ typedef struct __usb_device_context {
 } usb_device_context_t;
 
 /*
+ * USB packet structures.
+ */
+
+typedef struct __usb_control_packet {
+    uint8_t bmRequestType;      /*
+                                 * Hungarian notation is used to parallel
+                                 * the original USB headers.
+                                 */
+    uint8_t bRequest;
+    uint16_t wValue;
+    uint16_t wIndex;
+    uint8_t* data;
+    uint16_t wLength;
+} usb_control_packet_t;
+
+#define MakeRequest(packet, _bmRequestType, _bRequest, _wValue, _wIndex, _data, _wLength) \
+    {                                           \
+        packet.bmRequestType = _bmRequestType;  \
+        packet.bRequest = _bRequest;            \
+        packet.wValue = _wValue;                \
+        packet.wIndex = _wIndex;                \
+        packet.data = _data;                    \
+        packet.wLength = _wLength;              \
+    }
+
+/*
  * Device descriptor constants
  */
 
@@ -61,5 +80,32 @@ typedef struct __usb_device_context {
 #define TARGET_VENDOR           VENDOR_APPLE
 #define TARGET_DEVICE_DFU       0x1227
 #define TARGET_DEVICE_IBOOT     0x1281
+
+/*
+ * Debugging constructs.
+ */
+
+#ifndef __RELEASE__
+#define USB_DPRINTF     printf("(%s:%d) ", __FILE__, __LINE__), printf
+#else
+#define USB_DPRINTF
+#endif
+
+/*
+ * API.
+ */
+extern uint32_t usb_get_debugging_level __P((void));
+extern void usb_set_debugging_level __P((uint32_t));
+
+/* 
+ * Device control.
+ */
+
+extern int usb_device_control_transfer __P((usb_control_packet_t*, uint32_t));
+extern int usb_device_bulk_transfer __P((uint8_t, uint8_t*, uint32_t, int32_t*, uint32_t));
+extern int usb_device_get_string_descriptor __P((uint8_t, uint8_t*, uint32_t));
+extern int usb_device_set_configuration __P((uint32_t));
+extern int usb_device_set_interface __P((uint32_t, uint32_t));
+extern int usb_device_reset __P((void));
 
 #endif
