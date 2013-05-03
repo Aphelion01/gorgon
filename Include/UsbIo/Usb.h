@@ -38,6 +38,7 @@
 
 typedef struct __usb_device_context {
     libusb_device_handle *device_handle;
+    libusb_context *device_context;
     uint32_t device_interface;
     uint32_t device_alternate_interface;
     uint32_t device_pid;

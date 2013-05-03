@@ -90,6 +90,8 @@ int usb_device_get_string_descriptor(uint8_t index, uint8_t* buffer, uint32_t le
 int usb_device_set_configuration(uint32_t config_num)
 {
     int current_config = 0;
+    USB_DPRINTF("Setting configuration to %d\n", config_num);
+    
     libusb_get_configuration(context.device_handle, &current_config);
     if(current_config != config_num) {
         if(libusb_set_configuration(context.device_handle, config_num) < 0)
@@ -101,6 +103,8 @@ int usb_device_set_configuration(uint32_t config_num)
 
 int usb_device_set_interface(uint32_t intf, uint32_t alt_intf)
 {
+    USB_DPRINTF("Setting interface to: (%d, %d)\n", intf, alt_intf);
+
     if(libusb_claim_interface(context.device_handle, intf) < 0)
         return -1;
 
@@ -119,4 +123,51 @@ int usb_device_reset(void)
     return 0;
 }
 
+/*
+ * Open/close device.
+ */
 
+int usb_device_open(uint64_t ecid, uint16_t required_device) {
+    struct libusb_device *usb_device;
+    struct libusb_device **usb_device_list;
+    struct libusb_device_handle* usb_handle;
+    struct libusb_device_descriptor usb_device_descriptor;
+    int usb_device_count, i;
+
+    usb_device_count = libusb_get_device_count(context.device_context, &usb_device_list);
+    for(i = 0; i <= usb_device_count; i++) {
+        usb_device = (usb_device_list[i]);
+        libusb_get_device_descriptor(usb_device, &usb_device_descriptor);
+        if(usb_device_descriptor.idVendor == VENDOR_APPLE &&
+           usb_device_descriptor.idProduct == required_device) {
+            libusb_open(usb_device, &usb_handle);
+            if(usb_handle == NULL) {
+                errx(1, "can't connect to device");
+            }
+
+            memset(&context, 0, sizeof(usb_device_context_t));
+
+            context.device_interface = 0;
+            context.device_handle = usb_handle;
+            context.device_vid = usb_device_descriptor.idVendor;
+            context.device_pid = usb_device_descriptor.idProduct;
+
+            usb_device_get_string_descriptor(usb_device_descriptor.iSerialNumber,
+                                      context.device_serial, 255);
+
+            USB_DPRINTF("Device serial: %s\n", context.device_serial);
+
+            usb_device_set_configuration(1);
+
+            usb_device_set_interface(0, 0);
+            if(context.device_pid == TARGET_DEVICE_IBOOT)
+                usb_device_set_interface(1, 1);
+        }
+    }
+}
+
+int usb_device_close(void)
+{
+    libusb_close_device(context.device_handle);
+    memset(&context, 0, sizeof(context));
+}
