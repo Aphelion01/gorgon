@@ -126,6 +126,7 @@ extern uint32_t usb_device_get_bdid __P((void));
 extern uint32_t usb_device_get_scep __P((void));
 extern uint32_t usb_device_get_cprv __P((void));
 extern uint32_t usb_device_get_cpfm __P((void));
+extern uint32_t usb_device_get_ibfl __P((void));
 extern uint64_t usb_device_get_ecid __P((void));
 
 /*
@@ -143,6 +144,5 @@ extern char* usb_device_get_srnm __P((void));
 extern char* usb_device_get_imei __P((void));
 
 extern int usb_device_get_nonce __P((uint32_t*, uint8_t**));
-
 
 #endif

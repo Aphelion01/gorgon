@@ -115,6 +115,18 @@ uint32_t usb_device_get_cpid(void)
     return -1;
 }
 
+uint32_t usb_device_get_ibfl(void)
+{
+    char* ibfl_string = strstr(usb_device_internal_get_serial(),
+                               "IBFL:");
+    if(ibfl_string) {
+        uint32_t ibfl;
+        sscanf(ibfl_string, "IBFL:%x", &ibfl);
+        return ibfl;
+    }
+    return -1;
+}
+
 uint32_t usb_device_get_bdid(void)
 {
     char* bdid_string = strstr(usb_device_internal_get_serial(),
