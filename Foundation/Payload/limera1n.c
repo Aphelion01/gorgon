@@ -1,5 +1,5 @@
 /*-
- * Copyright (c) 2013, winocm. <rms@velocitylimitless.org
+ * Copyright (c) 2013, winocm. <rms@velocitylimitless.org>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
