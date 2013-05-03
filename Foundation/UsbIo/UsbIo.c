@@ -25,7 +25,7 @@
  */
 
 #include <Core.h>
-#include "Usb.h"
+#include <UsbIo/Usb.h>
 
 /*
  * Default debugging level. 0 is nothing.
