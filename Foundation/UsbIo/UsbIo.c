@@ -129,6 +129,21 @@ int usb_device_reset(void)
 
 static int is_initialized = 0;
 
+int usb_device_try_open(uint32_t required_device, int times)
+{
+    int i;
+    USB_DPRINTF("Polling for pid: %x, times: %d\n", required_device, 
+                times);
+    for(i = 0; i < times; i++) {
+        if(usb_device_open(required_device) == 0) {
+            return 0;
+        }
+        USB_DPRINTF("Failed to find device; waiting 1 second ...\n");
+        sleep(1);
+    }
+    return 1;
+}
+
 int usb_device_open(uint32_t required_device) {
     struct libusb_device *usb_device;
     struct libusb_device **usb_device_list;
@@ -144,7 +159,7 @@ int usb_device_open(uint32_t required_device) {
     USB_DPRINTF("Opening device with requested pid: %x\n", required_device);
 
     usb_device_count = libusb_get_device_list(context.device_context, &usb_device_list);
-    for(i = 0; i <= usb_device_count; i++) {
+    for(i = 0; i < usb_device_count; i++) {
         usb_device = (usb_device_list[i]);
         libusb_get_device_descriptor(usb_device, &usb_device_descriptor);
 
@@ -180,8 +195,7 @@ int usb_device_open(uint32_t required_device) {
             return 0;
         }
     }
-
-    return 0;
+    return -1;
 }
 
 int usb_device_close(void)

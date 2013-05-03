@@ -115,5 +115,6 @@ extern int usb_device_reset __P((void));
 
 extern int usb_device_open __P((uint32_t));
 extern int usb_device_close __P((void));
+extern int usb_device_try_open __P((uint32_t, int));
 
 #endif

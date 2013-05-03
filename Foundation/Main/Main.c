@@ -28,7 +28,7 @@
 #include <UsbIo/Usb.h>
 
 int main(int argc, char* argv[]) {
-    usb_device_open(0xdeadbeef);
+    usb_device_try_open(0x1227, 10);
     return 0;
 }
 
