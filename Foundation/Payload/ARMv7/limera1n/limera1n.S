@@ -85,36 +85,36 @@ _detected_s5l8920:
     ldr     r1, =__iBoot_JumpTo_S5L8920
     str     r1, [r7]
     ldr     r1, =__iBoot_UsbWaitForImage_S5L8920
-    str     r1, [r7, #4]
-    ldr     r1, =__iBoot_AesCryptoCmd_S5L8920
     str     r1, [r7, #8]
+    ldr     r1, =__iBoot_AesCryptoCmd_S5L8920
+    str     r1, [r7, #4]
     b       _wait_for_image
 
 _detected_s5l8920_new:
     ldr     r1, =__iBoot_JumpTo_S5L8920_NEW
     str     r1, [r7]
     ldr     r1, =__iBoot_UsbWaitForImage_S5L8920_NEW
-    str     r1, [r7, #4]
-    ldr     r1, =__iBoot_AesCryptoCmd_S5L8920_NEW
     str     r1, [r7, #8]
+    ldr     r1, =__iBoot_AesCryptoCmd_S5L8920_NEW
+    str     r1, [r7, #4]
     b       _wait_for_image
 
 _detected_s5l8922:
     ldr     r1, =__iBoot_JumpTo_S5L8922
     str     r1, [r7]
     ldr     r1, =__iBoot_UsbWaitForImage_S5L8922
-    str     r1, [r7, #4]
-    ldr     r1, =__iBoot_AesCryptoCmd_S5L8922
     str     r1, [r7, #8]
+    ldr     r1, =__iBoot_AesCryptoCmd_S5L8922
+    str     r1, [r7, #4]
     b       _wait_for_image
 
 _detected_s5l8930:
     ldr     r1, =__iBoot_JumpTo_S5L8930
     str     r1, [r7]
     ldr     r1, =__iBoot_UsbWaitForImage_S5L8930
-    str     r1, [r7, #4]
-    ldr     r1, =__iBoot_AesCryptoCmd_S5L8930
     str     r1, [r7, #8]
+    ldr     r1, =__iBoot_AesCryptoCmd_S5L8930
+    str     r1, [r7, #4]
     b       _wait_for_image
 
     /*
@@ -122,6 +122,14 @@ _detected_s5l8930:
      */
 
 _wait_for_image:
+    /*
+     * Load image.
+     */
+    ldr     r0, =LOAD_ADDRESS
+    ldr     r1, =MAX_SIZE
+    ldr     r3, [r7]
+    blx     r3
+
     ldr     r0, =LOAD_ADDRESS
     ldr     r2, [r0]
     ldr     r0, =TAG_IMG3
