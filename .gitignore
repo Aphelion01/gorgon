@@ -1,0 +1,5 @@
+*.out
+*~
+*obj*
+Binaries/*
+Foundation/Payload/Static/*

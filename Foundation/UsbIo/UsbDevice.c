@@ -39,6 +39,52 @@ static char* usb_device_internal_get_serial(void)
     return (char*)context.device_serial;
 }
 
+static char* usb_device_internal_get_nonce(void)
+{
+    char nonce[256];
+    usb_device_get_string_descriptor(1, (uint8_t*)&nonce, 256);
+    return strdup(nonce);
+}
+
+/*
+ * Nonce.
+ */ 
+int usb_device_get_nonce(uint32_t* buffer_size, uint8_t** buffer)
+{
+    char* nonce = usb_device_internal_get_nonce();
+    uint8_t *p;
+    int length, i;
+
+    if(strstr(nonce, "NONC:") == NULL) {
+        *buffer_size = 0;
+        *buffer = 0;
+        return -1;
+    }
+
+    nonce += 6;
+    length = strlen(nonce);
+
+    p = malloc(length / 2);
+    for(i = 0; i < (length / 2); i++) {
+        uint32_t val = 0;
+        if(sscanf(nonce + (i * 2), "%02X", &val) == 1) {
+            p[i] = (uint8_t)val;
+        } else {
+            warnx("weird data found in nonce?");
+            break;
+        }
+    }
+
+    if(i != (length / 2)) {
+        free(p);
+    }
+
+    *buffer = p;
+    *buffer_size = (length / 2);
+
+    return 0;
+}
+
 /*
  * Buffer size should be 255 or greater.
  */

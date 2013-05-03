@@ -30,6 +30,7 @@
 #include <sys/cdefs.h>
 #include <sys/types.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <stdarg.h>
 #include <stdio.h>

@@ -142,5 +142,7 @@ extern char* usb_device_get_srtg __P((void));
 extern char* usb_device_get_srnm __P((void));
 extern char* usb_device_get_imei __P((void));
 
+extern int usb_device_get_nonce __P((uint32_t*, uint8_t**));
+
 
 #endif

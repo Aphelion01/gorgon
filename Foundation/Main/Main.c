@@ -28,11 +28,16 @@
 #include <UsbIo/Usb.h>
 
 int main(int argc, char* argv[]) {
+    uint8_t *buffer; uint32_t size;
+
     usb_device_try_open(0x1227, 10);
 
     printf("BDID: %x\n", usb_device_get_bdid());
     printf("SRTG: %s\n", usb_device_get_srtg());
 
+    usb_device_get_nonce(&size, &buffer);
+    printf("Nonce buffer: %p, size: %d\n", buffer, size);   
+ 
     usb_device_close();
     return 0;
 }
