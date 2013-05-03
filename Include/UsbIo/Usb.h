@@ -117,4 +117,30 @@ extern int usb_device_open __P((uint32_t));
 extern int usb_device_close __P((void));
 extern int usb_device_try_open __P((uint32_t, int));
 
+/*
+ * Device information API
+ */
+
+extern uint32_t usb_device_get_cpid __P((void));
+extern uint32_t usb_device_get_bdid __P((void));
+extern uint32_t usb_device_get_scep __P((void));
+extern uint32_t usb_device_get_cprv __P((void));
+extern uint32_t usb_device_get_cpfm __P((void));
+extern uint64_t usb_device_get_ecid __P((void));
+
+/*
+ * usb_device_get_serial() requires a buffer with length 255
+ * or greater.
+ */
+extern int usb_device_get_serial __P((uint32_t, uint8_t*));
+
+/*
+ * The strings returned by these functions can/must be freed.
+ */
+
+extern char* usb_device_get_srtg __P((void));
+extern char* usb_device_get_srnm __P((void));
+extern char* usb_device_get_imei __P((void));
+
+
 #endif

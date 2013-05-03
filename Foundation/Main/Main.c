@@ -29,6 +29,11 @@
 
 int main(int argc, char* argv[]) {
     usb_device_try_open(0x1227, 10);
+
+    printf("BDID: %x\n", usb_device_get_bdid());
+    printf("SRTG: %s\n", usb_device_get_srtg());
+
+    usb_device_close();
     return 0;
 }
 

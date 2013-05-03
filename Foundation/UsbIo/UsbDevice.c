@@ -27,4 +27,154 @@
 #include <Core.h>
 #include <UsbIo/Usb.h>
 
+/*
+ * USB device context 
+ *
+ * Please see warning in UsbIo.c about messing with this structure.
+ */
+extern usb_device_context_t context;
+
+static char* usb_device_internal_get_serial(void)
+{
+    return (char*)context.device_serial;
+}
+
+/*
+ * Buffer size should be 255 or greater.
+ */
+int usb_device_get_serial(uint32_t buffer_size, uint8_t* buffer)
+{
+    char *serial = NULL;
+    if((buffer_size < 255) || (buffer == NULL))
+        return -1;
+    serial = usb_device_internal_get_serial();
+    if(!serial)
+        return -1;
+    strncpy((char*)buffer, serial, buffer_size);
+    return 0;
+}
+
+/*
+ * DFU field identifiers
+ */
+uint32_t usb_device_get_cpid(void)
+{
+    char* cpid_string = strstr(usb_device_internal_get_serial(),
+                               "CPID:");
+    if(cpid_string) {
+        uint32_t cpid;
+        sscanf(cpid_string, "CPID:%x", &cpid);
+        return cpid;
+    }
+    return -1;
+}
+
+uint32_t usb_device_get_bdid(void)
+{
+    char* bdid_string = strstr(usb_device_internal_get_serial(),
+                               "BDID:");
+    if(bdid_string) {
+        uint32_t bdid;
+        sscanf(bdid_string, "BDID:%x", &bdid);
+        return bdid;
+    }
+    return -1;
+}
+
+uint32_t usb_device_get_scep(void)
+{
+    char* scep_string = strstr(usb_device_internal_get_serial(),
+                               "SCEP:");
+    if(scep_string) {
+        uint32_t scep;
+        sscanf(scep_string, "SCEP:%x", &scep);
+        return scep;
+    }
+    return -1;
+}
+
+uint32_t usb_device_get_cprv(void)
+{
+    char* cprv_string = strstr(usb_device_internal_get_serial(),
+                               "CPRV:");
+    if(cprv_string) {
+        uint32_t cprv;
+        sscanf(cprv_string, "CPRV:%x", &cprv);
+        return cprv;
+    }
+    return -1;
+}
+
+uint32_t usb_device_get_cpfm(void)
+{
+    char* cpfm_string = strstr(usb_device_internal_get_serial(),
+                               "CPFM:");
+    if(cpfm_string) {
+        uint32_t cpfm;
+        sscanf(cpfm_string, "CPFM:%x", &cpfm);
+        return cpfm;
+    }
+    return -1;
+}
+
+uint64_t usb_device_get_ecid(void)
+{
+    char* ecid_string = strstr(usb_device_internal_get_serial(),
+                               "ECID:");
+    if(ecid_string) {
+        uint64_t ecid;
+        sscanf(ecid_string, "ECID:%qX", &ecid);
+        return ecid;
+    }
+    return -1;
+}
+
+/*
+ * iBoot string functions
+ */
+
+char* usb_device_get_srtg(void)
+{
+    char* srtg_string = strstr(usb_device_internal_get_serial(),
+                               "SRTG:");
+    if(srtg_string) {
+        char srtg[256], *p;
+        sscanf(srtg_string, "SRTG:[%s]", srtg);
+        p = strrchr(srtg, ']');
+        if((p = strrchr(srtg, ']')) != NULL)
+            *p = '\0';
+        return strdup(srtg);
+    }
+    return NULL;
+}
+
+char* usb_device_get_srnm(void)
+{
+    char* srnm_string = strstr(usb_device_internal_get_serial(),
+                               "SRNM:");
+    if(srnm_string) {
+        char srnm[256], *p;
+        sscanf(srnm_string, "SRNM:[%s]", srnm);
+        p = strrchr(srnm, ']');
+        if((p = strrchr(srnm, ']')) != NULL)
+            *p = '\0';
+        return strdup(srnm);
+    }
+    return NULL;
+}
+
+char* usb_device_get_imei(void)
+{
+    char* imei_string = strstr(usb_device_internal_get_serial(),
+                               "IMEI:");
+    if(imei_string) {
+        char imei[256], *p;
+        sscanf(imei_string, "IMEI:[%s]", imei);
+        p = strrchr(imei, ']');
+        if((p = strrchr(imei, ']')) != NULL)
+            *p = '\0';
+        return strdup(imei);
+    }
+    return NULL;
+}
 

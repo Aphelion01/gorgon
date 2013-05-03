@@ -32,7 +32,14 @@
  */
 
 static uint32_t __usb_debugging_level = 0;
-static usb_device_context_t context;
+
+/*
+ * DO NOT USE THIS DIRECTLY IN YOUR PROGRAMS
+ * VERY BAD THINGS MAY HAPPEN IF YOU PERFORM MALICIOUS ACTIONS.
+ *
+ * (Your warranty also expires if you do that. So don't do that. Please.)
+ */
+usb_device_context_t context;
 
 /*
  * USB debugging handler functionality.
@@ -91,7 +98,7 @@ int usb_device_set_configuration(uint32_t config_num)
 {
     int current_config = 0;
     USB_DPRINTF("Setting configuration to %d\n", config_num);
-    
+
     libusb_get_configuration(context.device_handle, &current_config);
     if(current_config != config_num) {
         if(libusb_set_configuration(context.device_handle, config_num) < 0)
