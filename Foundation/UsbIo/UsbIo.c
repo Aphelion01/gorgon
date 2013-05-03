@@ -127,17 +127,31 @@ int usb_device_reset(void)
  * Open/close device.
  */
 
-int usb_device_open(uint64_t ecid, uint16_t required_device) {
+static int is_initialized = 0;
+
+int usb_device_open(uint32_t required_device) {
     struct libusb_device *usb_device;
     struct libusb_device **usb_device_list;
     struct libusb_device_handle* usb_handle;
     struct libusb_device_descriptor usb_device_descriptor;
     int usb_device_count, i;
 
-    usb_device_count = libusb_get_device_count(context.device_context, &usb_device_list);
+    if(is_initialized == 0) {
+        libusb_init(&context.device_context);
+        is_initialized = 1;
+    }
+
+    USB_DPRINTF("Opening device with requested pid: %x\n", required_device);
+
+    usb_device_count = libusb_get_device_list(context.device_context, &usb_device_list);
     for(i = 0; i <= usb_device_count; i++) {
         usb_device = (usb_device_list[i]);
         libusb_get_device_descriptor(usb_device, &usb_device_descriptor);
+
+         USB_DPRINTF("Found usb device with vidpid: %04X:%04X\n",
+                     usb_device_descriptor.idVendor,
+                     usb_device_descriptor.idProduct);
+
         if(usb_device_descriptor.idVendor == VENDOR_APPLE &&
            usb_device_descriptor.idProduct == required_device) {
             libusb_open(usb_device, &usb_handle);
@@ -162,12 +176,23 @@ int usb_device_open(uint64_t ecid, uint16_t required_device) {
             usb_device_set_interface(0, 0);
             if(context.device_pid == TARGET_DEVICE_IBOOT)
                 usb_device_set_interface(1, 1);
+
+            return 0;
         }
     }
+
+    return 0;
 }
 
 int usb_device_close(void)
 {
-    libusb_close_device(context.device_handle);
+    libusb_close(context.device_handle);
     memset(&context, 0, sizeof(context));
+
+    if(is_initialized == 1) {
+        libusb_exit(context.device_context);
+        is_initialized = 0;
+    }
+
+    return 0;
 }

@@ -44,7 +44,7 @@ typedef struct __usb_device_context {
     uint32_t device_pid;
     uint32_t device_vid;
     uint32_t device_configuration;
-    char device_serial[SERIAL_SIZE];
+    uint8_t device_serial[SERIAL_SIZE];
 } usb_device_context_t;
 
 /*
@@ -108,5 +108,12 @@ extern int usb_device_get_string_descriptor __P((uint8_t, uint8_t*, uint32_t));
 extern int usb_device_set_configuration __P((uint32_t));
 extern int usb_device_set_interface __P((uint32_t, uint32_t));
 extern int usb_device_reset __P((void));
+
+/*
+ * Open/close API
+ */
+
+extern int usb_device_open __P((uint32_t));
+extern int usb_device_close __P((void));
 
 #endif

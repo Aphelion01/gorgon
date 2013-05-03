@@ -24,18 +24,11 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _CORE_H_
-#define _CORE_H_
+#include <Core.h>
+#include <UsbIo/Usb.h>
 
-#include <sys/cdefs.h>
-#include <sys/types.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <errno.h>
-#include <err.h>
-#include <string.h>
+int main(int argc, char* argv[]) {
+    usb_device_open(0xdeadbeef);
+    return 0;
+}
 
-#endif
