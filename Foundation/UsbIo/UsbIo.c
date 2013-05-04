@@ -217,3 +217,123 @@ int usb_device_close(void)
 
     return 0;
 }
+
+/*
+ * iBoot commands.
+ */
+
+int usb_device_send_command(const char* command)
+{
+    int length = strlen(command);
+    usb_control_packet_t packet;
+
+    if(length >= 0x100)
+        length = 0xFF;
+
+    if(length) {
+        MakeRequest(packet, 0x40, 0, 0, 0, (uint8_t*)command, length + 1);
+        usb_device_control_transfer(&packet, 1000);
+    }
+
+    return 0;
+}
+
+/*
+ * File send/transmit. Kermit?
+ */
+
+int usb_device_send_buffer(uint8_t* buffer, uint32_t size, uint32_t dfu_notify)
+{
+    int recovery_mode = 0;
+    int packet_size = 0x800;
+    int last = size % packet_size;
+    int packets = size / packet_size;
+    int res, transmitted = 0, i;
+    usb_control_packet_t packet;
+
+    if(last != 0)
+        packets++;
+    else
+        last = packet_size;
+
+    if(context.device_pid == TARGET_DEVICE_IBOOT)
+        recovery_mode = 1;
+
+    /*
+     * Start transfer.
+     */
+    if(recovery_mode) {
+        MakeRequest(packet, 0x41, 0, 0, 0, NULL, 0);
+        res = usb_device_control_transfer(&packet, 1000);
+    } else {
+        MakeRequest(packet, 0x21, 4, 0, 0, NULL, 0);
+        res = usb_device_control_transfer(&packet, 1000);
+    }
+
+    USB_DPRINTF("Preparing transfer %d\n", res);
+
+    if(res != 0)
+        return -1;
+
+    USB_DPRINTF("Sending packets\n");
+
+    double count = 0; double progress = 0;
+    for(i = 0; i < packets; i++) {
+        int __size = (i + 1) < packets ? packet_size : last;
+        int status = 0;
+
+        if(recovery_mode) {
+            usb_device_bulk_transfer(0x04, &buffer[i * packet_size], __size,
+                                     &transmitted, 1000);
+        } else {
+            MakeRequest(packet, 0x21, 1, 0, 0, &buffer[i * packet_size], __size);
+            transmitted = usb_device_control_transfer(&packet, 1000);
+        }
+
+        if(__size != transmitted) {
+            warnx("failure to transmit bytes (%d != %d)", __size, transmitted);
+            return -1;
+        }
+
+        if(!recovery_mode) {
+            uint8_t buf[6];
+            memset(buf, 0, 6);
+            MakeRequest(packet, 0xA1, 3, 0, 0, buf, 6);
+            if(usb_device_control_transfer(&packet, 1000) != 6)
+                status = 0;
+            status = buf[4];
+        }
+
+        if((!recovery_mode) && (status != 5)) {
+            warnx("failure to upload, status: %d", status);
+            return -1;
+        }
+
+        count += transmitted;
+        char cursor[4] = {'/', '-', '\\', '|'};
+        static int pos = 0;
+        if((count / (double)size) * 100.0 > progress) {
+            progress = (count / (double)size) * 100.0;
+            printf("%3.1f%% done uploading - %c\r", progress, cursor[pos]);
+            fflush(stdout);
+            pos = (pos + 1) % 4;
+        }
+        if(progress == 100)
+            printf("\n");
+    }
+
+    if(dfu_notify && !recovery_mode) {
+        MakeRequest(packet, 0x21, 1, 0, 0, (uint8_t*)buffer, 0);
+        usb_device_control_transfer(&packet, 1000);
+        for(i = 0; i < 3; i++) {
+            uint8_t buf[6];
+            memset(buf, 0, 6);
+            MakeRequest(packet, 0xA1, 3, 0, 0, buf, 6);
+            usb_device_control_transfer(&packet, 1000);
+        }
+        usb_device_reset();
+    }
+
+    return 0;
+}
+

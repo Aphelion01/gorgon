@@ -27,6 +27,8 @@
 #include <Core.h>
 #include <UsbIo/Usb.h>
 
+int usb_device_send_buffer(uint8_t* buffer, uint32_t size, uint32_t dfu_notify);
+
 int main(int argc, char* argv[]) {
     uint8_t *buffer; uint32_t size;
 
@@ -37,6 +39,14 @@ int main(int argc, char* argv[]) {
 
     usb_device_get_nonce(&size, &buffer);
     printf("Nonce buffer: %p, size: %d\n", buffer, size);   
+
+    FILE *fp = fopen(argv[1], "rb");
+    fseek(fp, 0, SEEK_END);
+    int length = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    char *p = malloc(length);
+    fread(p, 1, length, fp);
+    usb_device_send_buffer(p, length, 1);
  
     usb_device_close();
     return 0;
