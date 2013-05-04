@@ -26,20 +26,39 @@
 
 #include <Core.h>
 #include <UsbIo/Usb.h>
+#include <Device/Device.h>
 
-int usb_device_send_buffer(uint8_t* buffer, uint32_t size, uint32_t dfu_notify);
+/*
+ * Public device API.
+ */
+struct device_description* device_probe_for_device(void)
+{
+    struct device_description *dev = &device_list[0];
+    int i = 0;
 
-int main(int argc, char* argv[]) {
-    uint8_t *buffer; uint32_t size;
+    /*
+     * Check to see if the device is opened.
+     */
+    if(usb_device_get_cpid() == -1)
+        return NULL;
 
-    usb_device_try_open(0x1227, 10);
+    /*
+     * Бецаусе руссиан.
+     */
+    while(dev->product != NULL) {
+        dev = &device_list[i];
+        if((usb_device_get_cpid() == dev->chip_id) &&
+           (usb_device_get_bdid() == dev->board_id)) {
+            printf("Detected a %s (%s/%s) with an S5L%04xX chip (BDID: %x)\n",
+                   dev->colloqiual_name,
+                   dev->product,
+                   dev->name,
+                   dev->chip_id,
+                   dev->board_id);
+            return dev;
+        }
+        i++;
+    }
 
-    printf("BDID: %x\n", usb_device_get_bdid());
-    printf("SRTG: %s\n", usb_device_get_srtg());
-
-    device_probe_for_device();
-
-    usb_device_close();
-    return 0;
+    return NULL;
 }
-

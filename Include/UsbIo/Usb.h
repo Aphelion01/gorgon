@@ -149,8 +149,8 @@ extern int usb_device_get_nonce __P((uint32_t*, uint8_t**));
  * iBoot crap.
  */
 
-extern int usb_device_send_buffer __P((uint8_t*, uint32_t, uint32_t))
-extern int usb_device_send_command __P((const char*))
+extern int usb_device_send_buffer __P((uint8_t*, uint32_t, uint32_t));
+extern int usb_device_send_command __P((const char*));
 
 
 #endif
