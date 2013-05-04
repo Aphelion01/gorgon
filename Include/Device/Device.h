@@ -101,5 +101,10 @@ static struct device_description device_list[] = {
  * API.
  */
 extern struct device_description* device_probe_for_device __P((void));
+extern uint32_t device_get_current_chip_id __P((void));
+extern uint32_t device_get_current_board_id __P((void));
+extern const char* device_get_current_product __P((void));
+extern const char* device_get_current_name __P((void));
+extern const char* device_get_localized_name __P((void));ßßßß
 
 #endif

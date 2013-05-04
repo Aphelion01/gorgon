@@ -28,9 +28,46 @@
 #include <UsbIo/Usb.h>
 #include <Device/Device.h>
 
+static struct device_description* current_device = NULL;
+
 /*
  * Public device API.
  */
+uint32_t device_get_current_chip_id(void)
+{
+    if(!current_device)
+        return -1;
+    return current_device->chip_id;
+}
+
+uint32_t device_get_current_board_id(void)
+{
+    if(!current_device)
+        return -1;
+    return current_device->board_id;
+}
+
+const char* device_get_current_product(void)
+{
+    if(!current_device)
+        return NULL;
+    return current_device->product;
+}
+
+const char* device_get_current_name(void)
+{
+    if(!current_device)
+        return NULL;
+    return current_device->name;
+}
+
+const char* device_get_localized_name(void)
+{
+    if(!current_device)
+        return NULL;
+    return current_device->colloqiual_name;
+}
+
 struct device_description* device_probe_for_device(void)
 {
     struct device_description *dev = &device_list[0];
@@ -55,6 +92,7 @@ struct device_description* device_probe_for_device(void)
                    dev->name,
                    dev->chip_id,
                    dev->board_id);
+            current_device = dev;
             return dev;
         }
         i++;
