@@ -24,6 +24,8 @@
  * SUCH DAMAGE.
  */
 
+#define _USE_DEVICE_LIST
+
 #include <Core.h>
 #include <UsbIo/Usb.h>
 #include <Device/Device.h>

@@ -62,6 +62,8 @@ typedef struct device_description device_description_t;
 /*
  * Hyper-mega-super-duper device list.
  */
+#ifdef _USE_DEVICE_LIST
+
 static struct device_description device_list[] = {
     {   0, "iPhone1,1", "m68ap", IPHONE_NAME " 2G", 0x00, 0x8900},
     {   1, "iPhone1,2", "n82ap", IPHONE_NAME " 3G", 0x04, 0x8900},
@@ -96,6 +98,7 @@ static struct device_description device_list[] = {
     {  30, "AppleTV3,?", "j33iap", APPLE_TV_NAME " 3G (revA)", 0xFF, 0x8947},
     {  -1, NULL, NULL, NULL, -1, -1},
 };
+#endif
 
 /*
  * API.
@@ -105,6 +108,6 @@ extern uint32_t device_get_current_chip_id __P((void));
 extern uint32_t device_get_current_board_id __P((void));
 extern const char* device_get_current_product __P((void));
 extern const char* device_get_current_name __P((void));
-extern const char* device_get_localized_name __P((void));ßßßß
+extern const char* device_get_localized_name __P((void));
 
 #endif

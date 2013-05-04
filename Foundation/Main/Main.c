@@ -32,12 +32,22 @@ int usb_device_send_buffer(uint8_t* buffer, uint32_t size, uint32_t dfu_notify);
 int main(int argc, char* argv[]) {
     uint8_t *buffer; uint32_t size;
 
-    usb_device_try_open(0x1227, 10);
+    usb_device_try_open(0x1227, 100);
 
     printf("BDID: %x\n", usb_device_get_bdid());
     printf("SRTG: %s\n", usb_device_get_srtg());
 
     device_probe_for_device();
+
+    __limera1n_internal();
+
+    FILE *fp = fopen(argv[1], "rb");
+    fseek(fp, 0, SEEK_END);
+    int length = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    char *p = malloc(length);
+    fread(p, 1, length, fp);
+    usb_device_send_buffer(p, length, 1);
 
     usb_device_close();
     return 0;
